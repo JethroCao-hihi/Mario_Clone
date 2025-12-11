@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
@@ -19,16 +19,13 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
     }
 
-    void Start()
-    {
-        
-    }
-
     void Update()
     {
-        moveInput = Input.GetAxis("Horizontal");
+        GetInput();
+        CheckGround();
         HandleJump();
-        UpdateAnimatiom();
+        HandleFlip();
+        UpdateAnimation();
     }
 
     void FixedUpdate()
@@ -36,35 +33,47 @@ public class PlayerController : MonoBehaviour
         HandleMovement();
     }
 
+    private void GetInput()
+    {
+        moveInput = Input.GetAxisRaw("Horizontal");
+    }
+
+    private void CheckGround()
+    {
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+    }
+
     private void HandleMovement()
     {
         rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
+    }
+
+    private void HandleFlip()
+    {
         if (moveInput > 0) transform.localScale = new Vector3(1, 1, 1);
-        else if (moveInput < 0) transform.localScale = new Vector3(-1, 1, 1); 
+        else if (moveInput < 0) transform.localScale = new Vector3(-1, 1, 1);
     }
 
     private void HandleJump()
     {
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
-
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-            canDoubleJump = true;
-        }
-
-        else if (canDoubleJump && Input.GetKeyDown(KeyCode.Space) && !isGrounded)
-        {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-            canDoubleJump = false;
+            if (isGrounded)
+            {
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+                canDoubleJump = true;
+            }
+            else if (canDoubleJump)
+            {
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+                canDoubleJump = false;
+            }
         }
     }
-    
-    private void UpdateAnimatiom()
+
+    private void UpdateAnimation()
     {
-        bool isRunning = Mathf.Abs(rb.linearVelocity.x) > 0.1f;
-        bool isJumping = !isGrounded;
-        animator.SetBool("isRunning", isRunning);
-        animator.SetBool("isJumping", isJumping);
+        animator.SetBool("isRunning", Mathf.Abs(rb.linearVelocity.x) > 0.1f);
+        animator.SetBool("isJumping", !isGrounded);
     }
 }
