@@ -9,11 +9,12 @@ TagManager:
   - Enemy
   - Win
   - Down
+  - Audio
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - I
   - Water
   - UI
   - Ground

@@ -6,6 +6,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float jumpForce = 10f;
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private Transform groundCheck;
+    [SerializeField] private bool useMobileControls = false;
     private float groundCheckRadius = 0.2f;
     private bool canDoubleJump;
     private bool isGrounded;
@@ -35,7 +36,14 @@ public class PlayerController : MonoBehaviour
 
     private void GetInput()
     {
-        moveInput = Input.GetAxisRaw("Horizontal");
+        if (useMobileControls && MobileControls.Instance != null)
+        {
+            moveInput = MobileControls.Instance.GetMoveInput();
+        }
+        else
+        {
+            moveInput = Input.GetAxisRaw("Horizontal");
+        }
     }
 
     private void CheckGround()
@@ -56,17 +64,38 @@ public class PlayerController : MonoBehaviour
 
     private void HandleJump()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        bool jumpInput = false;
+
+        if (useMobileControls && MobileControls.Instance != null)
+        {
+            jumpInput = MobileControls.Instance.GetJumpInput();
+        }
+        else
+        {
+            jumpInput = Input.GetKeyDown(KeyCode.Space);
+        }
+
+        if (jumpInput)
         {
             if (isGrounded)
             {
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
                 canDoubleJump = true;
+                
+                if (AudioManager.Instance != null && AudioManager.Instance.jump != null)
+                {
+                    AudioManager.Instance.PlaySFX(AudioManager.Instance.jump);
+                }
             }
             else if (canDoubleJump)
             {
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
                 canDoubleJump = false;
+
+                if (AudioManager.Instance != null && AudioManager.Instance.jump != null)
+                {
+                    AudioManager.Instance.PlaySFX(AudioManager.Instance.jump);
+                }
             }
         }
     }

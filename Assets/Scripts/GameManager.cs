@@ -18,14 +18,22 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         UpdateScore();
-        gameOverUI.SetActive(false);
-        if (winUI != null)
+
+        if (UIManager.Instance != null)
         {
-            winUI.SetActive(false); 
+            UIManager.Instance.ShowGameplayUI();
         }
-        if (pauseUI != null)
+        else
         {
-            pauseUI.SetActive(false);
+            gameOverUI.SetActive(false);
+            if (winUI != null)
+            {
+                winUI.SetActive(false);
+            }
+            if (pauseUI != null)
+            {
+                pauseUI.SetActive(false);
+            }
         }
     }
 
@@ -66,9 +74,23 @@ public class GameManager : MonoBehaviour
     private IEnumerator GameOverDelayed(float delay)
     {
         yield return new WaitForSeconds(delay);
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayGameOverMusic();
+        }
+
         score = 0;
         Time.timeScale = 0f;
-        gameOverUI.SetActive(true);
+
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.ShowGameOverUI();
+        }
+        else
+        {
+            gameOverUI.SetActive(true);
+        }
     }
 
     public void Win(float delay = 1f)
@@ -81,16 +103,24 @@ public class GameManager : MonoBehaviour
     private IEnumerator WinDelayed(float delay)
     {
         yield return new WaitForSeconds(delay);
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayWinMusic();
+        }
+
         Time.timeScale = 0f;
-        if (winUI != null)
+
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.ShowWinUI();
+        }
+        else if (winUI != null)
         {
             winUI.SetActive(true);
-            UpdateWinScore();
         }
-        else
-        {
-            Debug.LogWarning("Win UI is not assigned!");
-        }
+
+        UpdateWinScore();
     }
 
     private void UpdateWinScore()
@@ -106,7 +136,12 @@ public class GameManager : MonoBehaviour
         if (isGameOver || isWin) return;
         isPaused = true;
         Time.timeScale = 0f;
-        if (pauseUI != null)
+
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.ShowPauseUI();
+        }
+        else if (pauseUI != null)
         {
             pauseUI.SetActive(true);
         }
@@ -116,7 +151,12 @@ public class GameManager : MonoBehaviour
     {
         isPaused = false;
         Time.timeScale = 1f;
-        if (pauseUI != null)
+
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.HidePauseUI();
+        }
+        else if (pauseUI != null)
         {
             pauseUI.SetActive(false);
         }
@@ -130,12 +170,35 @@ public class GameManager : MonoBehaviour
         score = 0;
         UpdateScore();
         Time.timeScale = 1f;
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayBackgroundMusic();
+        }
+
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void QuitGame()
     {
-        Application.Quit();
+        // L?y tên scene hi?n t?i
+        string currentScene = SceneManager.GetActiveScene().name;
+        
+        // N?u ?ang ? trong các Map thì quay v? Main Menu
+        if (currentScene != "MainMenu")
+        {
+            BackToMenu();
+        }
+        else
+        {
+            // N?u ?ang ? Main Menu thì thoát game
+            Application.Quit();
+            
+            // Dành cho Unity Editor
+            #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+            #endif
+        }
     }
 
     public void BackToMenu()
@@ -146,6 +209,12 @@ public class GameManager : MonoBehaviour
         score = 0;
         UpdateScore();
         Time.timeScale = 1f;
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.StopMusic();
+        }
+
         SceneManager.LoadScene("MainMenu");
     }
 
@@ -156,10 +225,15 @@ public class GameManager : MonoBehaviour
         isPaused = false;
         score = 0;
         Time.timeScale = 1f;
-        
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayBackgroundMusic();
+        }
+
         int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
         int nextSceneIndex = currentSceneIndex + 1;
-        
+
         if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
         {
             SceneManager.LoadScene(nextSceneIndex);

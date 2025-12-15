@@ -28,7 +28,10 @@ public class PlayerCollision : MonoBehaviour
             {
                 gameManager.AddScore(1);
             }
-            Debug.Log("Da an coin");
+            if (AudioManager.Instance != null && AudioManager.Instance.collectCoin != null)
+            {
+                AudioManager.Instance.PlaySFX(AudioManager.Instance.collectCoin);
+            }
             Destroy(collision.gameObject);
         }
         else if (collision.CompareTag("Trap"))
@@ -52,21 +55,17 @@ public class PlayerCollision : MonoBehaviour
                 {
                     enemy.Die();
                 }
-                Debug.Log("Da giet enemy");
+                if (AudioManager.Instance != null && AudioManager.Instance.enemyDeath != null)
+                {
+                    AudioManager.Instance.PlaySFX(AudioManager.Instance.enemyDeath);
+                }
             }
             else
             {
                 StartCoroutine(DeathAnimation());
             }
         }
-        else if (collision.CompareTag("Finish"))
-        {
-            if (gameManager != null)
-            {
-                gameManager.Win();
-            }
-        }
-        else if (collision.CompareTag("Win"))
+        else if (collision.CompareTag("Finish") || collision.CompareTag("Win"))
         {
             if (gameManager != null)
             {
@@ -79,6 +78,10 @@ public class PlayerCollision : MonoBehaviour
     {
         isDead = true;
 
+        if (AudioManager.Instance != null && AudioManager.Instance.dead != null)
+        {
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.dead);
+        }
         PlayerController playerController = GetComponent<PlayerController>();
         if (playerController != null)
         {
