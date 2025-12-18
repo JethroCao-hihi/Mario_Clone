@@ -8,15 +8,17 @@ TagManager:
   - Trap
   - Enemy
   - Win
+  - Down
+  - Audio
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - I
   - Water
   - UI
   - Ground
-  - 
+  - Down
   - 
   - 
   - 
@@ -45,17 +47,23 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: Enemy
-    uniqueID: 2605140943
+  - name: Sky
+    uniqueID: 3123855113
+    locked: 0
+  - name: Ground
+    uniqueID: 420791241
     locked: 0
   - name: Item
     uniqueID: 2733872379
     locked: 0
-  - name: UI
-    uniqueID: 3123855113
+  - name: Enemy
+    uniqueID: 2605140943
     locked: 0
   - name: Player
     uniqueID: 1021636535
+    locked: 0
+  - name: UI
+    uniqueID: 3447557561
     locked: 0
   m_RenderingLayers:
   - Default
